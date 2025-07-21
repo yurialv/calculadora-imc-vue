@@ -32,13 +32,13 @@
     </div>
 
     <div class="input-group">
-      <label for="altura">Altura (m):</label>
+      <label for="altura">Altura (cm):</label>
       <input
         type="number"
         id="altura"
         v-model.number="altura"
-        placeholder="Ex: 1.75"
-        step="0.01"
+        placeholder="Ex: 181"
+        step="1"
         min="0"
       />
     </div>
@@ -48,23 +48,32 @@
     <h2>Resultado:</h2>
     <div id="resultado">
       <p v-if="resultadoIMC">
-        <strong>Nome:</strong> {{ nome }}<br />
-        <strong>Idade:</strong> {{ idade }} anos<br />
-        <strong>Peso:</strong> {{ peso.toFixed(1) }} kg<br />
-        <strong>Altura:</strong> {{ altura.toFixed(2) }} m
-      </p>
-      <p v-if="resultadoIMC">
-        <strong>Seu IMC:</strong>
-        <span :class="classificacaoIMC.classe">{{
-          resultadoIMC.toFixed(2)
-        }}</span>
-      </p>
-      <p v-if="resultadoIMC">
         <strong>Classificação:</strong>
         <span :class="classificacaoIMC.classe">{{
           classificacaoIMC.texto
         }}</span>
       </p>
+
+      <template v-if="pesoIdealRange">
+        <p v-if="classificacaoIMC.classe !== 'normal'">
+          <strong>Peso Ideal:</strong> entre {{ pesoIdealRange.min }} kg e
+          {{ pesoIdealRange.max }} kg
+        </p>
+        <p v-if="excessoDePeso > 0" class="warning">
+          Você está aproximadamente {{ excessoDePeso }} kg acima do peso ideal!
+        </p>
+        <p
+          v-else-if="
+            peso.value < pesoIdealRange.min &&
+            classificacaoIMC.classe !== 'normal'
+          "
+          class="warning"
+        >
+          Você está aproximadamente
+          {{ (pesoIdealRange.min - peso.value).toFixed(1) }} kg abaixo do peso
+          ideal!
+        </p>
+      </template>
       <p v-else-if="mensagemErro" class="error">{{ mensagemErro }}</p>
       <p v-else>Os resultados aparecerão aqui.</p>
     </div>
@@ -81,6 +90,36 @@ const altura = ref(null);
 
 const resultadoIMC = ref(null);
 const mensagemErro = ref("");
+
+const pesoIdealRange = computed(() => {
+  // Importante: use 'altura.value / 100' aqui para garantir que a altura esteja em metros
+  // já que o cálculo do IMC e peso ideal usa altura em metros.
+  const h = altura.value / 100; // Altura em metros (baseada na entrada em cm)
+  if (isNaN(h) || h <= 0) {
+    return null; // Retorna nulo se a altura não for válida
+  }
+  const imcMin = 18.5; // Limite inferior do IMC considerado normal
+  const imcMax = 24.9; // Limite superior do IMC considerado normal
+  const pesoMin = imcMin * h * h;
+  const pesoMax = imcMax * h * h;
+  return {
+    min: parseFloat(pesoMin.toFixed(0)),
+    max: parseFloat(pesoMax.toFixed(0)),
+  };
+});
+
+// Propriedade computada para calcular o excesso de peso
+const excessoDePeso = computed(() => {
+  // Só calcula se o IMC for um número e o peso ideal for calculado
+  if (!resultadoIMC.value || peso.value === null || !pesoIdealRange.value) {
+    return null; // Se não houver resultado de IMC ou peso ideal, não há excesso
+  }
+  // Se o peso atual for maior que o limite superior do peso ideal, calcula a diferença
+  if (peso.value > pesoIdealRange.value.max) {
+    return parseFloat((peso.value - pesoIdealRange.value.max).toFixed(0));
+  }
+  return 0; // Se não estiver acima do peso ideal, o excesso é zero
+});
 
 function calculaValorIMC(p, a) {
   if (isNaN(p) || isNaN(a) || p <= 0 || a <= 0) {
@@ -127,7 +166,9 @@ const calcularIMC = () => {
     return;
   }
 
-  const imc = calculaValorIMC(peso.value, altura.value);
+  const alturaEmMetros = altura.value / 100;
+
+  const imc = calculaValorIMC(peso.value, alturaEmMetros);
 
   if (imc !== null) {
     resultadoIMC.value = imc;
