@@ -1,29 +1,36 @@
-# calculadora-imc-vue
+# Calculadora de IMC com Vue 3
 
-This template should help get you started developing with Vue 3 in Vite.
+Este é um projeto simples de calculadora de Índice de Massa Corporal (IMC) desenvolvido com Vue 3, utilizando Vite para o ambiente de desenvolvimento.
 
-## Recommended IDE Setup
+## Funcionalidades
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- Cálculo de IMC com base em peso e altura.
+- Classificação do resultado do IMC.
+- Validação básica dos campos de entrada.
 
-## Customize configuration
+## Como Rodar o Projeto Localmente
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+1.  **Clone o repositório:**
 
-## Project Setup
+    ```bash
+    git clone [https://github.com/yurialv/calculadora-imc-vue.git](https://github.com/yurialv/calculadora-imc-vue.git)
+    ```
 
-```sh
-npm install
-```
+2.  **Navegue até a pasta do projeto:**
 
-### Compile and Hot-Reload for Development
+    ```bash
+    cd calculadora-imc-vue
+    ```
 
-```sh
-npm run dev
-```
+3.  **Instale as dependências:**
 
-### Compile and Minify for Production
+    ```bash
+    npm install
+    ```
 
-```sh
-npm run build
-```
+4.  **Inicie o servidor de desenvolvimento:**
+    ```bash
+    npm run dev
+    ```
+
+O aplicativo estará disponível em `http://localhost:5173/`.
